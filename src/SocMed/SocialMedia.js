@@ -5,7 +5,7 @@ import { FaXTwitter } from "react-icons/fa6";
 
 const SocialMedia = () => {
   // ✅ Replace this with your actual deployed link
-  const projectUrl = encodeURIComponent("https://your-museum-project-link.com");
+  const projectUrl = encodeURIComponent("https://your-museum-https-link.com");
   const projectTitle = encodeURIComponent("Check out my Virtual Museum Project!");
 
   const socialLinks = [
