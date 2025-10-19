@@ -4,7 +4,7 @@ import { FaFacebookF, FaInstagram, FaLinkedinIn, FaYoutube, FaTiktok } from "rea
 import { FaXTwitter } from "react-icons/fa6";
 
 const SocialMedia = () => {
-  // ✅ Replace this with your actual deployed link
+  // this is for vercel
   const projectUrl = encodeURIComponent("https://step-inside.vercel.app/");
   const projectTitle = encodeURIComponent("Check out my Virtual Museum Project!");
 
@@ -27,8 +27,7 @@ const SocialMedia = () => {
       icon: <FaLinkedinIn />,
       color: "#0A66C2",
     },
-    // ⚠️ Instagram, TikTok, YouTube don’t allow direct URL sharing
-    // You can instead link them to your profile/channel
+   
     {
       name: "Instagram",
       url: "https://instagram.com/yourprofile",

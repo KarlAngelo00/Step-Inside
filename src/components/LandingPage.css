@@ -1,0 +1,191 @@
+/* LandingPage.css */
+.landing-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  min-height: 100vh;
+  padding: 0 20px;
+  background: radial-gradient(circle at top left, #1e1e2f, #2a2a40 60%, #1a1a28);
+  color: #f8f9fa;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Floating gradient particles */
+.landing-page::before {
+  content: "";
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(79,70,229,0.4), transparent 70%);
+  top: -100px;
+  left: -100px;
+  border-radius: 50%;
+  filter: blur(80px);
+  animation: floatSlow 12s ease-in-out infinite alternate;
+}
+.landing-page::after {
+  content: "";
+  position: absolute;
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, rgba(229,70,152,0.4), transparent 70%);
+  bottom: -120px;
+  right: -100px;
+  border-radius: 50%;
+  filter: blur(90px);
+  animation: floatSlow 14s ease-in-out infinite alternate;
+}
+
+/* Main heading */
+.landing-page h1 {
+  font-size: 3.5rem;
+  font-weight: 800;
+  margin-bottom: 20px;
+  letter-spacing: -1px;
+  color: #ffffff;
+  text-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  animation: fadeInDown 1s ease-in-out;
+}
+
+/* Subheading */
+.landing-page p {
+  font-size: 1.3rem;
+  color: #d1d1d1;
+  max-width: 700px;
+  margin: 0 auto 40px;
+  line-height: 1.7;
+  animation: fadeInUp 1.2s ease-in-out;
+}
+
+/* Buttons wrapper */
+.landing-page .buttons {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  justify-content: center;
+  animation: fadeInUp 1.5s ease-in-out;
+}
+
+/* Buttons */
+.landing-page button {
+  padding: 14px 32px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.35s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Start Tour Button */
+.landing-page button:first-child {
+  background: linear-gradient(135deg, #6366f1, #4338ca);
+  color: white;
+  box-shadow: 0 6px 18px rgba(79, 70, 229, 0.4);
+}
+.landing-page button:first-child:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 10px 24px rgba(79, 70, 229, 0.5);
+}
+
+/* Secondary Button */
+.landing-page button:last-child {
+  background: rgba(255,255,255,0.05);
+  border: 2px solid rgba(255,255,255,0.3);
+  color: #f1f1f1;
+  backdrop-filter: blur(6px);
+}
+.landing-page button:last-child:hover {
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  transform: translateY(-3px);
+}
+
+/* Footer */
+.landing-page footer {
+  margin-top: 70px;
+  font-size: 0.9rem;
+  color: #a1a1aa;
+  animation: fadeInUp 2s ease-in-out;
+}
+
+/* Fade-out Transition */
+.fade-out {
+  animation: fadeOut 0.8s ease forwards;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-25px);
+  }
+}
+
+/* Animations */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-25px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(25px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes floatSlow {
+  from { transform: translateY(0) scale(1); }
+  to { transform: translateY(-20px) scale(1.05); }
+}
+/* Add slideshow container behind particles */
+.landing-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2; /* stays at the very back */
+  background-size: cover;
+  background-position: center;
+  animation: bgSlide 18s infinite;
+}
+
+/* Keep floating gradient particles above images */
+.landing-page::after {
+  content: "";
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(79,70,229,0.4), transparent 70%);
+  top: -100px;
+  left: -100px;
+  border-radius: 50%;
+  filter: blur(80px);
+  animation: floatSlow 12s ease-in-out infinite alternate;
+  z-index: -1;
+}
+
+/* Keyframes for rotating background images */
+@keyframes bgSlide {
+  0%   { background-image: url("/public/images/artwork1.jpg"); }
+  33%  { background-image: url("/public/images/artwork2.jpg"); }
+  66%  { background-image: url("/public/images/artwork3.jpg"); }
+  100% { background-image: url("/public/images/artwork4.jpg"); }
+}

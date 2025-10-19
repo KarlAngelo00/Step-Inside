@@ -1,231 +1,171 @@
-import React, { Suspense, useState, useEffect, useRef } from "react";
-import { Canvas } from "@react-three/fiber";
-import { OrbitControls, useTexture, Html } from "@react-three/drei";
-import artifacts from "./components/Artifacts";
+import React, { useState, useRef } from "react";
+import LandingPage from "./components/LandingPage";
+import Museum2 from "./MuseumRoom/Museum2";
+import Museum3 from "./MuseumRoom/Museum3";
+import Museum4 from "./MuseumRoom/Museum4"; // ✅ add this
 import SocialMedia from "./SocMed/SocialMedia";
-import "./App.css";
-
-console.log(artifacts);
-
-function Panorama({ src }) {
-  const texture = useTexture(src);
-  return (
-    <mesh scale={[-1, 1, 1]}>
-      <sphereGeometry args={[500, 60, 40]} />
-      <meshBasicMaterial map={texture} side={1} />
-    </mesh>
-  );
-}
-
-function InfoMarker({ position, onClick, hasVideo = false }) {
-  return (
-    <group position={position}>
-      <mesh
-        onClick={onClick}
-        onPointerOver={(e) => (
-          e.stopPropagation(), (document.body.style.cursor = "pointer")
-        )}
-        onPointerOut={() => (document.body.style.cursor = "default")}
-      >
-        <circleGeometry args={[5, 32]} />
-        <meshBasicMaterial color="blue" transparent opacity={0} />
-      </mesh>
-
-      <Html center>
-        <div
-          className="info-marker"
-          onClick={onClick}
-          style={{ cursor: "pointer" }}
-        >
-          {hasVideo ="?"}
-        </div>
-      </Html>
-    </group>
-  );
-}
-
-// YouTube embed URL builder with JS API enabled
-function getYouTubeEmbedUrl(videoId) {
-  if (!videoId) return "";
-  let id = videoId;
-
-  if (videoId.includes("youtube.com/watch?v=")) {
-    id = videoId.split("youtube.com/watch?v=")[1].split("&")[0];
-  } else if (videoId.includes("youtu.be/")) {
-    id = videoId.split("youtu.be/")[1].split("?")[0];
-  } else if (videoId.includes("youtube.com/embed/")) {
-    id = videoId.split("youtube.com/embed/")[1].split("?")[0];
-  }
-
-  return `https://www.youtube.com/embed/${id}?enablejsapi=1`;
-}
+import LoadingScreen from "./components/LoadingScreen";
 
 export default function App() {
-  const [selectedArtifact, setSelectedArtifact] = useState(null);
+  const [currentRoom, setCurrentRoom] = useState("landing");
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingText, setLoadingText] = useState("");
+  const [isMusicPlaying, setIsMusicPlaying] = useState(false);
   const audioRef = useRef(null);
 
-  // Background music setup
-  useEffect(() => {
-    const audio = new Audio("/music/bg-music.mp3");
-    audio.loop = true;
-    audio.volume = 0.5;
-    audioRef.current = audio;
-
-    audio
-      .play()
-      .then(() => {
-        console.log("🎵 Background music started");
-      })
-      .catch(() => {
-        console.log("⚠️ Autoplay blocked, waiting for user click...");
-        const resume = () => {
-          audio.play().then(() => {
-            console.log("🎵 Background music resumed after click");
-          });
-          document.removeEventListener("click", resume);
-        };
-        document.addEventListener("click", resume);
-      });
-
-    return () => {
-      audio.pause();
-      audio.currentTime = 0;
-    };
-  }, []);
-
-  // Artifact click handler
-  const handleArtifactClick = (artifact) => {
-    setSelectedArtifact(artifact);
+  // 🎵 Background Music Toggle
+  const toggleMusic = () => {
+    if (!audioRef.current) {
+      const audio = new Audio("/music/bg-music.mp3");
+      audio.loop = true;
+      audio.volume = 0.25;
+      audioRef.current = audio;
+    }
+    if (isMusicPlaying) {
+      audioRef.current.pause();
+    } else {
+      audioRef.current.play().catch(() => console.log("Play failed"));
+    }
+    setIsMusicPlaying(!isMusicPlaying);
   };
 
-  // Detect when YouTube video actually plays
-  useEffect(() => {
-    if (!selectedArtifact?.videoId) return;
+  // 🔊 Click sound effect
+  const playClickSound = () => {
+    const sound = new Audio("/sounds/click.wav");
+    sound.volume = 0.7;
+    sound.play().catch(() => console.log("Sound effect failed to play"));
+  };
 
-    const iframe = document.querySelector("iframe");
-    if (!iframe) return;
+  // 🧭 Navigation with loading screen
+  const navigateToRoom = (roomName, loadingMessage) => {
+    playClickSound();
+    setLoadingText(loadingMessage);
+    setIsLoading(true);
 
-    const handleMessage = (event) => {
-      if (
-        typeof event.data === "object" &&
-        event.data?.event === "infoDelivery" &&
-        event.data.info?.playerState === 1
-      ) {
-        // 1 = playing
-        if (audioRef.current && !audioRef.current.paused) {
-          audioRef.current.pause();
-          console.log("🎥 YouTube video started -> paused background music");
-        }
+    setTimeout(() => {
+      setCurrentRoom(roomName);
+      setIsLoading(false);
+    }, 1500);
+  };
+
+  // ❓ Help button
+  const handleHelpClick = () => {
+    playClickSound();
+    alert("This is the help/info section!");
+  };
+
+  // 🏛️ Room rendering
+  const renderRoom = () => {
+    switch (currentRoom) {
+      case "landing":
+        return (
+          <LandingPage
+            onEnter={() =>
+              navigateToRoom("museum2", "Entering Museum Room 1...")
+            }
+          />
+        );
+
+      case "museum2":
+        return (
+          <Museum2
+            onNextRoom={() =>
+              navigateToRoom("museum3", "Entering Museum Room 2...")
+            }
+            onHelpClick={handleHelpClick}
+          />
+        );
+
+      case "museum3":
+  return (
+    <Museum3
+      onBackRoom={() =>
+        navigateToRoom("museum2", "Returning to Museum Room 1...")
       }
-    };
+      onGoRoom4={() =>
+        navigateToRoom("museum4", "Entering Museum Room 3...")
+      }
+      onHelpClick={handleHelpClick}
+    />
+  );
 
-    window.addEventListener("message", handleMessage);
-    return () => {
-      window.removeEventListener("message", handleMessage);
-    };
-  }, [selectedArtifact]);
+            case "museum4":
+        return (
+          <Museum4
+            onBackRoom={() =>
+              navigateToRoom("museum3", "Returning to Museum Room 2...")
+            }
+            onGoRoom5={() =>
+              navigateToRoom("museum5", "Entering Museum Room 5...")
+            }
+          />
+        );
 
-  // Close popup and resume music
-  const handleClosePopup = () => {
-    setSelectedArtifact(null);
-    if (audioRef.current && audioRef.current.paused) {
-      audioRef.current.play().catch((e) => console.log("Music resume failed:", e));
-      console.log("🎵 Background music resumed after popup closed");
+
+      default:
+        return null;
     }
   };
 
+  const isLanding = currentRoom === "landing";
+
+  // 🎛️ UI + Room rendering
   return (
     <div className="app-container">
-      <SocialMedia />
+      {isLoading ? (
+        <LoadingScreen text={loadingText} />
+      ) : (
+        <>
+          {!isLanding && (
+            <>
+              <SocialMedia />
 
-      <Canvas camera={{ position: [0, 0, 0.1], fov: 75 }}>
-        <Suspense fallback={null}>
-          <Panorama src="/panos/museum2.jpg" />
-
-          {!selectedArtifact &&
-            artifacts.map((art) => (
-              <InfoMarker
-                key={art.id}
-                position={art.position}
-                onClick={() => handleArtifactClick(art)}
-                hasVideo={!!art.videoId}
-              />
-            ))}
-
-          <OrbitControls enableZoom={true} enablePan={false} />
-        </Suspense>
-      </Canvas>
-
-      {selectedArtifact && (
-        <div className="artifact-popup">
-          <h2>{selectedArtifact.title}</h2>
-
-          {selectedArtifact.artist && (
-            <p
-              style={{
-                fontSize: "16px",
-                fontStyle: "italic",
-                marginTop: "-15px",
-                marginBottom: "25px",
-                opacity: 0.9,
-              }}
-            >
-              by {selectedArtifact.artist}
-            </p>
+              {/* 🎵 Music Toggle Button */}
+              <div
+                onClick={() => {
+                  playClickSound();
+                  toggleMusic();
+                }}
+                style={{
+                  position: "absolute",
+                  top: "20px",
+                  right: "20px",
+                  width: "60px",
+                  height: "34px",
+                  backgroundColor: isMusicPlaying ? "#4CAF50" : "#ccc",
+                  borderRadius: "34px",
+                  cursor: "pointer",
+                  transition: "background-color 0.3s",
+                  zIndex: 1000,
+                  display: "flex",
+                  alignItems: "center",
+                  padding: "0 4px",
+                }}
+              >
+                <div
+                  style={{
+                    height: "26px",
+                    width: "26px",
+                    backgroundColor: "white",
+                    borderRadius: "50%",
+                    transition: "transform 0.3s",
+                    transform: isMusicPlaying
+                      ? "translateX(26px)"
+                      : "translateX(0)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "16px",
+                  }}
+                >
+                  {isMusicPlaying ? "Off" : "On"}
+                </div>
+              </div>
+            </>
           )}
 
-          {selectedArtifact.image && (
-            <img
-              src={selectedArtifact.image}
-              alt={selectedArtifact.title}
-              style={{
-                maxWidth: "100%",
-                borderRadius: "12px",
-                margin: "20px 0",
-              }}
-            />
-          )}
-
-          {selectedArtifact.videoId && (
-  <>
-    <iframe
-      src={getYouTubeEmbedUrl(selectedArtifact.videoId)}
-      title={`${selectedArtifact.title} - Video`}
-      frameBorder="0"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-      allowFullScreen
-      width="560"
-      height="315"
-    />
-
-    {/* for citation link */}
-    <p
-      style={{
-        fontSize: "14px",
-        fontStyle: "italic",
-        color: "#ddd",
-        marginTop: "8px",
-        textAlign: "center",
-      }}
-    >
-      Source:{" "}
-      <a
-        href={selectedArtifact.videoId}
-        target="_blank"
-        rel="noopener noreferrer"
-        style={{ color: "#4da6ff" }}
-      >
-        {selectedArtifact.videoId}
-      </a>
-    </p>
-  </>
-)}
-
-          <p>{selectedArtifact.description}</p>
-          <button className="close-btn" onClick={handleClosePopup}>
-            ✖ Close
-          </button>
-        </div>
+          {renderRoom()}
+        </>
       )}
     </div>
   );
